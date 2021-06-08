@@ -48,7 +48,7 @@ All rules are enabled by default:
 
 **Core rules only**
 
-https://github.com/cr0hn/dockerfile-security/blob/master/dockefile_sec/rules/core.yaml
+https://github.com/cr0hn/dockerfile-security/blob/master/dockerfile_sec/rules/core.yaml
 
 ```bash
 > dockerfile-sec -R core Dockerfile
@@ -56,7 +56,7 @@ https://github.com/cr0hn/dockerfile-security/blob/master/dockefile_sec/rules/cor
 
 **Java rules only**
 
-https://github.com/cr0hn/dockerfile-security/blob/master/dockefile_sec/rules/java.yaml
+https://github.com/cr0hn/dockerfile-security/blob/master/dockerfile_sec/rules/java.yaml
 
 ```bash
 > dockerfile-sec -R java Dockerfile
@@ -64,7 +64,7 @@ https://github.com/cr0hn/dockerfile-security/blob/master/dockefile_sec/rules/jav
 
 **Credentials rules only**
 
-https://github.com/cr0hn/dockerfile-security/blob/master/dockefile_sec/rules/credentials.yaml
+https://github.com/cr0hn/dockerfile-security/blob/master/dockerfile_sec/rules/credentials.yaml
 
 ```bash
 > dockerfile-sec -R credentials Dockerfile
