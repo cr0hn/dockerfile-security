@@ -28,6 +28,14 @@ Analyze a Dockerfile
 +----------+-------------------------------------------+----------+  
 ```
 
+## Using docker
+
+```bash
+> cat Dockerfile | docker run --rm -t cr0hn/dockerfile-sec  
+```
+
+    IMPORTANT: By using docker you can pass a rules file or a docker file as paramenter. You need to use a pipe or mount a volume
+
 ## Usage
 
 ### With remote rules
