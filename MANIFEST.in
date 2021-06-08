@@ -1,4 +1,6 @@
-include requirements.txt rules.yaml
+include requirements.txt README.md VERSION
+
+recursive-include dockerfile_sec/rules *.yaml
 
 recursive-exclude * __pycache__
 recursive-exclude * *.pyc

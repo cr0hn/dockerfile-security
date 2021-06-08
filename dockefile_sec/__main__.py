@@ -3,6 +3,7 @@ import re
 import sys
 import json
 import select
+import os.path as op
 
 from typing import List
 
@@ -56,10 +57,40 @@ def _process_results(args: argparse.Namespace, found_issues: List[dict]):
 
 
 def _load_rules(args: argparse.Namespace) -> List[dict]:
-    default_rules_path = os.path.join(HERE, "rules.yaml")
+    def __load_all_rules__() -> list:
+        _all = ("core", "credentials", "java")
+        return [
+            op.join(HERE, f"{a}.yaml")
+            for a in _all
+        ]
 
-    with open(default_rules_path, "r") as f:
-        rules = yaml.safe_load(f.read())
+    built_in_rules = args.internal_rules
+
+    rules_files = []
+
+    if built_in_rules == "none":
+        pass
+
+    elif built_in_rules == "all":
+        rules_files.extend(__load_all_rules__())
+
+    elif built_in_rules == "java":
+        rules_files.append(op.join(HERE, "java.yaml"))
+
+    elif built_in_rules == "credentials":
+        rules_files.append(op.join(HERE, "credentials.yaml"))
+
+    elif built_in_rules == "core":
+        rules_files.append(op.join(HERE, "core.yaml"))
+
+    else:
+        rules_files.extend(__load_all_rules__())
+
+    rules = []
+
+    for r in rules_files:
+        with open(r, "r") as f:
+            rules.extend(yaml.safe_load(f.read()))
 
     if args.rules_file:
         for rule_file in args.rules_file:
@@ -150,6 +181,9 @@ def main():
     parser.add_argument('-r', '--rules-file',
                         action="append",
                         help="rules file. One rule ID per line")
+    parser.add_argument('-R', '--internal-rules',
+                        choices=("core", "credentials", "java", "all", "none"),
+                        help="use built-in rules. Default: all")
     parser.add_argument('-o', '--output-file',
                         help="output file path")
     parser.add_argument('-q', '--quiet',
@@ -163,9 +197,5 @@ def main():
     except Exception as e:
         print("[!] ", e)
 
-#
-# TODO: read Dockerfile from stdin
-# TODO: output json by stdout
-#
 if __name__ == '__main__':
     main()
