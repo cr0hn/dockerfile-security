@@ -8,6 +8,25 @@ Dockerfile-sec is a simple but powerful rules-based checker for Dockerfiles.
 > pip install dockerfile-sec 
 ```
 
+## Quick start
+
+Analyze a Dockerfile
+
+```bash
+> dockerfile-sec examples/Dockerfile-example
++----------+-------------------------------------------+----------+
+| Rule Id  | Description                               | Severity |
++----------+-------------------------------------------+----------+
+| core-001 | Missing content trust                     | Low      |
+| core-002 | Missing USER sentence in dockerfile       | Medium   |
+| core-003 | Posible text plain password in dockerfile | High     |
+| core-005 | Recursive copy found                      | Medium   |
+| core-006 | Use of COPY instead of ADD                | Low      |
+| core-007 | Use image tag instead of SHA256 hash      | Medium   |
+| cred-001 | Generic credential                        | Medium   |
+| java-001 | Missing content trust                     | Low      |
++----------+-------------------------------------------+----------+  
+```
 
 ## Usage
 
@@ -29,17 +48,23 @@ All rules are enabled by default:
 
 **Core rules only**
 
+https://github.com/cr0hn/dockerfile-security/blob/master/dockefile_sec/rules/core.yaml
+
 ```bash
 > dockerfile-sec -R core Dockerfile
 ```
 
 **Java rules only**
 
+https://github.com/cr0hn/dockerfile-security/blob/master/dockefile_sec/rules/java.yaml
+
 ```bash
 > dockerfile-sec -R java Dockerfile
 ```
 
 **Credentials rules only**
+
+https://github.com/cr0hn/dockerfile-security/blob/master/dockefile_sec/rules/credentials.yaml
 
 ```bash
 > dockerfile-sec -R credentials Dockerfile

@@ -3,17 +3,26 @@ import re
 import sys
 import json
 import select
+import argparse
 import os.path as op
+import urllib.request
 
 from typing import List
 
 import yaml
-import requests
-import argparse
 
 from terminaltables import AsciiTable
 
 HERE = os.path.dirname(__file__)
+
+def download(remote_file: str) -> str:
+    with urllib.request.urlopen(remote_file) as f:
+        v = f.read()
+
+        try:
+            return v.decode('utf-8')
+        except:
+            return v
 
 
 def _process_results(args: argparse.Namespace, found_issues: List[dict]):
@@ -60,7 +69,7 @@ def _load_rules(args: argparse.Namespace) -> List[dict]:
     def __load_all_rules__() -> list:
         _all = ("core", "credentials", "java")
         return [
-            op.join(HERE, f"{a}.yaml")
+            op.join(HERE, "rules", f"{a}.yaml")
             for a in _all
         ]
 
@@ -75,13 +84,13 @@ def _load_rules(args: argparse.Namespace) -> List[dict]:
         rules_files.extend(__load_all_rules__())
 
     elif built_in_rules == "java":
-        rules_files.append(op.join(HERE, "java.yaml"))
+        rules_files.append(op.join(HERE, "rules", "java.yaml"))
 
     elif built_in_rules == "credentials":
-        rules_files.append(op.join(HERE, "credentials.yaml"))
+        rules_files.append(op.join(HERE, "rules", "credentials.yaml"))
 
     elif built_in_rules == "core":
-        rules_files.append(op.join(HERE, "core.yaml"))
+        rules_files.append(op.join(HERE, "rules", "core.yaml"))
 
     else:
         rules_files.extend(__load_all_rules__())
@@ -97,7 +106,7 @@ def _load_rules(args: argparse.Namespace) -> List[dict]:
             if rule_file.startswith("http"):
                 # Load from remote URL
                 rules.extend(
-                    yaml.safe_load(requests.get(rule_file).content)
+                    yaml.safe_load(download(rule_file))
                 )
             else:
                 # Load from local file
@@ -120,7 +129,7 @@ def _load_ignore_ids(args: argparse.Namespace) -> List[str]:
         for rule_file in args.ignore_file:
             if rule_file.startswith("http"):
                 # Load from remote URL
-                ignores.extend(requests.get(rule_file).content.splitlines())
+                ignores.extend(download(rule_file).splitlines())
             else:
                 # Load from local file
                 real_file_path = os.path.join(os.getcwd(), rule_file)
