@@ -14,7 +14,7 @@
   reference: https://snyk.io/blog/10-docker-image-security-best-practices/
   severity: Medium
 - id: core-004
-  description: Use of ADD instead of COPY
+  description: Use of COPY instead of ADD
   regex: '(ADD.)'
   reference: https://snyk.io/blog/10-docker-image-security-best-practices/
   severity: Low
