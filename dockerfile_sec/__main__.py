@@ -15,6 +15,7 @@ from terminaltables import AsciiTable
 
 HERE = os.path.dirname(__file__)
 
+
 def download(remote_file: str) -> str:
     with urllib.request.urlopen(remote_file) as f:
         v = f.read()
@@ -26,12 +27,11 @@ def download(remote_file: str) -> str:
 
 
 def _process_results(args: argparse.Namespace, found_issues: List[dict]):
-
     # -------------------------------------------------------------------------
     # Building results
     # -------------------------------------------------------------------------
     table_data = [
-        ['Rule Id', 'Description', 'Severity'],
+        ['Rule Id', 'Description', 'Severity', 'Reference']
     ]
 
     if not found_issues:
@@ -42,7 +42,8 @@ def _process_results(args: argparse.Namespace, found_issues: List[dict]):
             table_data.append((
                 res["id"],
                 res["description"],
-                res["severity"]
+                res["severity"],
+                res["reference"]
             ))
 
         # Export results
@@ -67,7 +68,7 @@ def _process_results(args: argparse.Namespace, found_issues: List[dict]):
 
 def _load_rules(args: argparse.Namespace) -> List[dict]:
     def __load_all_rules__() -> list:
-        _all = ("core", "credentials", "java")
+        _all = ("core", "credentials")
         return [
             op.join(HERE, "rules", f"{a}.yaml")
             for a in _all
@@ -82,9 +83,6 @@ def _load_rules(args: argparse.Namespace) -> List[dict]:
 
     elif built_in_rules == "all":
         rules_files.extend(__load_all_rules__())
-
-    elif built_in_rules == "java":
-        rules_files.append(op.join(HERE, "rules", "java.yaml"))
 
     elif built_in_rules == "credentials":
         rules_files.append(op.join(HERE, "rules", "credentials.yaml"))
@@ -118,7 +116,6 @@ def _load_rules(args: argparse.Namespace) -> List[dict]:
 
 
 def _load_ignore_ids(args: argparse.Namespace) -> List[str]:
-
     ignores = []
 
     if args.ignore_rule:
@@ -191,7 +188,7 @@ def main():
                         action="append",
                         help="rules file. One rule ID per line")
     parser.add_argument('-R', '--internal-rules',
-                        choices=("core", "credentials", "java", "all", "none"),
+                        choices=("core", "credentials", "all", "none"),
                         help="use built-in rules. Default: all")
     parser.add_argument('-o', '--output-file',
                         help="output file path")
@@ -205,6 +202,7 @@ def main():
         analyze(parsed_cli)
     except Exception as e:
         print("[!] ", e)
+
 
 if __name__ == '__main__':
     main()
