@@ -64,6 +64,9 @@ def _process_results(args: argparse.Namespace, found_issues: List[dict]):
             except Exception as e:
                 pass
 
+    if args.code_exit and found_issues:
+        sys.exit(1)
+
 
 def _load_rules(args: argparse.Namespace) -> List[dict]:
     def __load_all_rules__() -> list:
@@ -195,6 +198,8 @@ def main():
                         action="store_true",
                         default=False,
                         help="quiet mode")
+    parser.add_argument('-E', '--code-exit', action="store_true", help="exit code 1 if issues found", default=False)
+
     parsed_cli = parser.parse_args()
 
     try:
