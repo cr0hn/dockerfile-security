@@ -17,14 +17,12 @@ Analyze a Dockerfile
 +----------+-------------------------------------------+----------+
 | Rule Id  | Description                               | Severity |
 +----------+-------------------------------------------+----------+
-| core-001 | Missing content trust                     | Low      |
 | core-002 | Missing USER sentence in dockerfile       | Medium   |
 | core-003 | Posible text plain password in dockerfile | High     |
 | core-005 | Recursive copy found                      | Medium   |
 | core-006 | Use of COPY instead of ADD                | Low      |
 | core-007 | Use image tag instead of SHA256 hash      | Medium   |
 | cred-001 | Generic credential                        | Medium   |
-| java-001 | Missing content trust                     | Low      |
 +----------+-------------------------------------------+----------+  
 ```
 
@@ -62,14 +60,6 @@ https://github.com/cr0hn/dockerfile-security/blob/master/dockerfile_sec/rules/co
 > dockerfile-sec -R core Dockerfile
 ```
 
-**Java rules only**
-
-https://github.com/cr0hn/dockerfile-security/blob/master/dockerfile_sec/rules/java.yaml
-
-```bash
-> dockerfile-sec -R java Dockerfile
-```
-
 **Credentials rules only**
 
 https://github.com/cr0hn/dockerfile-security/blob/master/dockerfile_sec/rules/credentials.yaml
@@ -88,12 +78,6 @@ https://github.com/cr0hn/dockerfile-security/blob/master/dockerfile_sec/rules/cr
 
 ```bash
 > dockerfile-sec -r my-rules.yaml Dockerfile
-```
-
-### With many user-defined rules files
-
-```bash
-> dockerfile-sec -r rules/java.yaml -r rules/credentials.yaml Dockerfile 
 ```
 
 ### Export results as json

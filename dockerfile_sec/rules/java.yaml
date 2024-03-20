@@ -1,5 +1,0 @@
-- id: java-001
-  description: Missing content trust
-  regex: '^(?!(DOCKER_CONTENT_TRUST[\\s]*\=[\\s]*1))'
-  reference: https://snyk.io/blog/10-docker-image-security-best-practices/
-  severity: Low
