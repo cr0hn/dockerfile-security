@@ -31,7 +31,7 @@ def _process_results(args: argparse.Namespace, found_issues: List[dict]):
     # Building results
     # -------------------------------------------------------------------------
     table_data = [
-        ['Rule Id', 'Description', 'Severity', 'Reference']
+        ['Rule Id', 'Description', 'Severity']
     ]
 
     if not found_issues:
@@ -42,8 +42,7 @@ def _process_results(args: argparse.Namespace, found_issues: List[dict]):
             table_data.append((
                 res["id"],
                 res["description"],
-                res["severity"],
-                res["reference"]
+                res["severity"]
             ))
 
         # Export results
