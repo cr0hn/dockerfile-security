@@ -165,3 +165,4 @@ Exposing results via pipe:
 - https://snyk.io/blog/10-docker-image-security-best-practices/
 - https://medium.com/microscaling-systems/dockerfile-security-tuneup-166f1cdafea1
 - https://medium.com/@tariq.m.islam/container-deployments-a-lesson-in-deterministic-ops-a4a467b14a03
+- https://spacelift.io/blog/docker-security
