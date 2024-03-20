@@ -1,12 +1,12 @@
 name: Build Pypi Artifacts
 
 on:
-
+  workflow_dispatch:
   push:
     branches:
       - master
     paths:
-      - dockerfile_sec/*
+      - VERSION
 
 jobs:
 

@@ -145,12 +145,6 @@ Exposing results via pipe:
 
 [
   {
-    "description": "Missing content trust",
-    "id": "core-001",
-    "reference": "https://snyk.io/blog/10-docker-image-security-best-practices/",
-    "severity": "Low"
-  },
-  {
     "description": "Missing USER sentence in dockerfile",
     "id": "core-002",
     "reference": "https://snyk.io/blog/10-docker-image-security-best-practices/",
