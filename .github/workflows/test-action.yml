@@ -1,0 +1,123 @@
+name: Test GitHub Action
+
+on:
+  push:
+    branches: [master, main]
+    paths:
+      - 'action.yml'
+      - '.github/workflows/test-action.yml'
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  test-ubuntu:
+    name: Test on Ubuntu
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test action with default settings
+        uses: ./
+        with:
+          dockerfile: 'testdata/Dockerfile-example'
+          fail-on-issues: false
+
+      - name: Test with specific categories
+        uses: ./
+        with:
+          dockerfile: 'testdata/Dockerfile-security-issues'
+          categories: 'core,security'
+          fail-on-issues: false
+
+      - name: Test with JSON output
+        uses: ./
+        id: scan
+        with:
+          dockerfile: 'testdata/Dockerfile-example'
+          output-file: 'results.json'
+          fail-on-issues: false
+
+      - name: Display results
+        run: |
+          echo "Exit code: ${{ steps.scan.outputs.exit-code }}"
+          echo "Issues found: ${{ steps.scan.outputs.issues-found }}"
+          cat results.json
+
+  test-macos:
+    name: Test on macOS
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test action on macOS
+        uses: ./
+        with:
+          dockerfile: 'testdata/Dockerfile-example'
+          fail-on-issues: false
+
+  test-windows:
+    name: Test on Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test action on Windows
+        uses: ./
+        with:
+          dockerfile: 'testdata/Dockerfile-example'
+          fail-on-issues: false
+
+  test-fail-on-issues:
+    name: Test fail-on-issues flag
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test that action fails when issues found
+        uses: ./
+        continue-on-error: true
+        id: scan-fail
+        with:
+          dockerfile: 'testdata/Dockerfile-security-issues'
+          fail-on-issues: true
+
+      - name: Verify action failed
+        run: |
+          if [ "${{ steps.scan-fail.outcome }}" != "failure" ]; then
+            echo "Action should have failed with issues found"
+            exit 1
+          fi
+          echo "Action correctly failed when issues were found"
+
+  test-custom-rules:
+    name: Test with custom rules
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test with custom rules file
+        uses: ./
+        with:
+          dockerfile: 'testdata/Dockerfile-example'
+          custom-rules: 'testdata/custom-rules.yaml'
+          fail-on-issues: false
+
+  test-ignore-rules:
+    name: Test ignore functionality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test ignore by ID
+        uses: ./
+        with:
+          dockerfile: 'testdata/Dockerfile-example'
+          ignore-rules: 'core-001,core-003'
+          fail-on-issues: false
+
+      - name: Test ignore file
+        uses: ./
+        with:
+          dockerfile: 'testdata/Dockerfile-example'
+          ignore-file: 'testdata/ignore-1'
+          fail-on-issues: false

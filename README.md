@@ -19,11 +19,13 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-BSD_3--Clause-blue.svg" alt="License"></a>
   <a href="https://github.com/cr0hn/dockerfile-security/pkgs/container/dockerfile-security"><img src="https://img.shields.io/badge/Docker-ghcr.io-2496ED?style=flat&logo=docker" alt="Docker"></a>
   <a href="https://github.com/cr0hn/dockerfile-security/releases"><img src="https://img.shields.io/github/v/release/cr0hn/dockerfile-security?sort=semver" alt="Latest Release"></a>
+  <a href="https://github.com/marketplace/actions/dockerfile-security-scan"><img src="https://img.shields.io/badge/Marketplace-Dockerfile%20Security-blue.svg?colorA=24292e&colorB=0366d6&style=flat&longCache=true&logo=github" alt="GitHub Marketplace"></a>
 </p>
 
 <p align="center">
   <a href="#quick-start">Quick Start</a> •
   <a href="#installation">Installation</a> •
+  <a href="#using-as-github-action">GitHub Action</a> •
   <a href="#usage">Usage</a> •
   <a href="#built-in-rules">Rules</a> •
   <a href="#creating-custom-rules">Custom Rules</a> •
@@ -41,6 +43,12 @@
   - [Binary](#binary)
   - [Docker](#docker)
   - [From Source](#from-source)
+- [Using as GitHub Action](#using-as-github-action)
+  - [Basic Usage](#basic-usage)
+  - [Advanced Usage](#advanced-usage)
+  - [Action Inputs](#action-inputs)
+  - [Action Outputs](#action-outputs)
+  - [Examples](#examples)
 - [Usage](#usage)
   - [Basic Analysis](#basic-analysis)
   - [Using Docker](#using-docker)
@@ -163,6 +171,145 @@ go install github.com/cr0hn/dockerfile-security/cmd/dockerfile-sec@latest
 git clone https://github.com/cr0hn/dockerfile-security.git
 cd dockerfile-security
 make build
+```
+
+---
+
+## Using as GitHub Action
+
+You can use dockerfile-sec directly in your GitHub Actions workflows without manual installation.
+
+### Basic Usage
+
+```yaml
+name: Dockerfile Security Scan
+
+on: [push, pull_request]
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Scan Dockerfile
+        uses: cr0hn/dockerfile-security@v0.2.0
+        with:
+          dockerfile: 'Dockerfile'
+```
+
+### Advanced Usage
+
+```yaml
+name: Advanced Dockerfile Security Scan
+
+on: [push, pull_request]
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Scan with custom settings
+        id: scan
+        uses: cr0hn/dockerfile-security@v0.2.0
+        with:
+          dockerfile: 'docker/Dockerfile.prod'
+          categories: 'core,credentials,security'
+          ignore-rules: 'core-001'
+          output-file: 'security-results.json'
+          fail-on-issues: true
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-scan-results
+          path: security-results.json
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request' && failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const results = JSON.parse(fs.readFileSync('security-results.json', 'utf8'));
+            const comment = `## 🔒 Dockerfile Security Scan Results\n\n` +
+              `Found ${results.length} security issues:\n\n` +
+              results.map(i => `- **${i.id}**: ${i.description} (${i.severity})`).join('\n');
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+```
+
+### Action Inputs
+
+| Input | Description | Required | Default |
+|-------|-------------|----------|---------|
+| `dockerfile` | Path to Dockerfile to analyze | No | `Dockerfile` |
+| `categories` | Rule categories (comma-separated): `all`, `core`, `credentials`, `security`, `packages`, `configuration` | No | `all` |
+| `ignore-rules` | Comma-separated rule IDs to ignore | No | `''` |
+| `ignore-file` | Path to ignore file | No | `''` |
+| `custom-rules` | Path to custom rules YAML file or URL | No | `''` |
+| `output-format` | Output format: `table`, `json` | No | `table` |
+| `output-file` | Path to save JSON output | No | `''` |
+| `fail-on-issues` | Exit with code 1 if issues found | No | `true` |
+| `quiet` | Quiet mode (suppress output) | No | `false` |
+| `version` | Version of dockerfile-sec to use | No | `latest` |
+
+### Action Outputs
+
+| Output | Description |
+|--------|-------------|
+| `issues-found` | Number of security issues found |
+| `exit-code` | Exit code of the scan (0=success, 1=issues) |
+
+### Examples
+
+#### Scan Multiple Dockerfiles
+
+```yaml
+jobs:
+  scan-all:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dockerfile:
+          - Dockerfile
+          - docker/Dockerfile.dev
+          - docker/Dockerfile.prod
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Scan ${{ matrix.dockerfile }}
+        uses: cr0hn/dockerfile-security@v0.2.0
+        with:
+          dockerfile: ${{ matrix.dockerfile }}
+```
+
+#### Only Scan Credentials
+
+```yaml
+- name: Credential Scan Only
+  uses: cr0hn/dockerfile-security@v0.2.0
+  with:
+    dockerfile: 'Dockerfile'
+    categories: 'credentials'
+```
+
+#### Use Custom Rules
+
+```yaml
+- name: Scan with Custom Rules
+  uses: cr0hn/dockerfile-security@v0.2.0
+  with:
+    dockerfile: 'Dockerfile'
+    custom-rules: '.github/dockerfile-rules.yaml'
 ```
 
 ---

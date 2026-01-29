@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **GitHub Action support** - Use dockerfile-sec directly in GitHub Actions workflows without manual installation
+  - Composite action that works on Ubuntu, macOS, and Windows runners
+  - Automatic binary download and setup for the correct platform
+  - All CLI flags exposed as action inputs
+  - Output support for `issues-found` and `exit-code`
+  - Comprehensive test suite covering all platforms and features
+  - Examples for basic usage, advanced workflows, PR comments, and multiple Dockerfile scanning
+
 ## [2.0.0] - 2025-01-29
 
 ### Added

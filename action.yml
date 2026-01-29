@@ -1,0 +1,145 @@
+name: 'Dockerfile Security Scan'
+description: 'Scan Dockerfiles for security issues, misconfigurations, and exposed credentials'
+author: 'Daniel Garcia (cr0hn)'
+
+inputs:
+  dockerfile:
+    description: 'Path to Dockerfile to analyze'
+    required: false
+    default: 'Dockerfile'
+
+  categories:
+    description: 'Rule categories to run: all, core, credentials, security, packages, configuration (comma-separated)'
+    required: false
+    default: 'all'
+
+  ignore-rules:
+    description: 'Comma-separated rule IDs to ignore (e.g., core-001,cred-006)'
+    required: false
+    default: ''
+
+  ignore-file:
+    description: 'Path to file with rule IDs to ignore (one per line)'
+    required: false
+    default: ''
+
+  custom-rules:
+    description: 'Path to custom rules YAML file or URL'
+    required: false
+    default: ''
+
+  output-format:
+    description: 'Output format: table, json'
+    required: false
+    default: 'table'
+
+  output-file:
+    description: 'Path to save output file (JSON format)'
+    required: false
+    default: ''
+
+  fail-on-issues:
+    description: 'Exit with code 1 if issues are found (for CI/CD)'
+    required: false
+    default: 'true'
+
+  quiet:
+    description: 'Quiet mode (suppress stdout output)'
+    required: false
+    default: 'false'
+
+  version:
+    description: 'Version of dockerfile-sec to use (e.g., v0.2.0, latest)'
+    required: false
+    default: 'latest'
+
+outputs:
+  issues-found:
+    description: 'Number of security issues found'
+    value: ${{ steps.scan.outputs.issues-found }}
+
+  exit-code:
+    description: 'Exit code of the scan (0=success, 1=issues found)'
+    value: ${{ steps.scan.outputs.exit-code }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Download and setup dockerfile-sec
+      shell: bash
+      run: |
+        # Detect OS and architecture
+        OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+        ARCH=$(uname -m)
+
+        # Map architecture names
+        case "$ARCH" in
+          x86_64) ARCH="amd64" ;;
+          aarch64|arm64) ARCH="arm64" ;;
+          *) echo "Unsupported architecture: $ARCH"; exit 1 ;;
+        esac
+
+        # Map OS names
+        case "$OS" in
+          linux) OS="linux" ;;
+          darwin) OS="darwin" ;;
+          mingw*|msys*|cygwin*) OS="windows"; EXT=".exe" ;;
+          *) echo "Unsupported OS: $OS"; exit 1 ;;
+        esac
+
+        # Construct download URL
+        VERSION="${{ inputs.version }}"
+        if [ "$VERSION" = "latest" ]; then
+          VERSION=$(curl -s https://api.github.com/repos/cr0hn/dockerfile-security/releases/latest | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/')
+        fi
+
+        BINARY_NAME="dockerfile-sec-${OS}-${ARCH}${EXT}"
+        DOWNLOAD_URL="https://github.com/cr0hn/dockerfile-security/releases/download/${VERSION}/${BINARY_NAME}"
+
+        echo "Downloading dockerfile-sec ${VERSION} for ${OS}/${ARCH}..."
+        curl -sSL "$DOWNLOAD_URL" -o dockerfile-sec${EXT}
+        chmod +x dockerfile-sec${EXT}
+
+        # Add to PATH
+        echo "$(pwd)" >> $GITHUB_PATH
+
+    - name: Run dockerfile-sec scan
+      id: scan
+      shell: bash
+      run: |
+        # Build command
+        CMD="./dockerfile-sec"
+
+        # Add flags
+        [ -n "${{ inputs.categories }}" ] && [ "${{ inputs.categories }}" != "all" ] && CMD="$CMD -R ${{ inputs.categories }}"
+        [ -n "${{ inputs.ignore-rules }}" ] && CMD="$CMD -i ${{ inputs.ignore-rules }}"
+        [ -n "${{ inputs.ignore-file }}" ] && CMD="$CMD -F ${{ inputs.ignore-file }}"
+        [ -n "${{ inputs.custom-rules }}" ] && CMD="$CMD -r ${{ inputs.custom-rules }}"
+        [ -n "${{ inputs.output-file }}" ] && CMD="$CMD -o ${{ inputs.output-file }}"
+        [ "${{ inputs.quiet }}" = "true" ] && CMD="$CMD -q"
+        [ "${{ inputs.fail-on-issues }}" = "true" ] && CMD="$CMD -E"
+
+        # Add Dockerfile path
+        CMD="$CMD ${{ inputs.dockerfile }}"
+
+        # Execute scan
+        echo "Running: $CMD"
+        $CMD
+        EXIT_CODE=$?
+
+        # Set outputs
+        echo "exit-code=$EXIT_CODE" >> $GITHUB_OUTPUT
+
+        # Count issues if JSON output
+        if [ -n "${{ inputs.output-file }}" ]; then
+          ISSUES=$(jq '. | length' "${{ inputs.output-file }}" 2>/dev/null || echo "0")
+          echo "issues-found=$ISSUES" >> $GITHUB_OUTPUT
+        else
+          echo "issues-found=unknown" >> $GITHUB_OUTPUT
+        fi
+
+        exit $EXIT_CODE
+
+branding:
+  icon: 'shield'
+  color: 'blue'
