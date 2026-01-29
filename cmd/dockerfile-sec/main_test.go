@@ -81,18 +81,13 @@ func TestBasicFileAnalysis(t *testing.T) {
 	}
 
 	// Verify specific issues are found
-	foundCore002 := false
+	// core-002 now only detects ENV/ARG/LABEL with credentials, not RUN commands
+	// cred-001 should detect the --password in RUN command
 	foundCred001 := false
 	for _, issue := range issues {
-		if issue.ID == "core-002" {
-			foundCore002 = true
-		}
 		if issue.ID == "cred-001" {
 			foundCred001 = true
 		}
-	}
-	if !foundCore002 {
-		t.Error("expected to find core-002 (password in dockerfile)")
 	}
 	if !foundCred001 {
 		t.Error("expected to find cred-001 (generic credential)")
@@ -231,13 +226,14 @@ func TestRuleSetsNone(t *testing.T) {
 }
 
 func TestIgnoreRuleByID(t *testing.T) {
+	// Use Dockerfile-security-issues which has ENV with password (triggers core-002)
 	// First run without ignore to get baseline
-	stdout1, _, _ := runCLI("../../testdata/Dockerfile-example")
+	stdout1, _, _ := runCLI("../../testdata/Dockerfile-security-issues")
 	var baseline []rules.Issue
 	json.Unmarshal([]byte(stdout1), &baseline)
 
 	// Then run with ignore
-	stdout2, stderr, exitCode := runCLI("-i", "core-002", "../../testdata/Dockerfile-example")
+	stdout2, stderr, exitCode := runCLI("-i", "core-002", "../../testdata/Dockerfile-security-issues")
 	if exitCode != 0 {
 		t.Errorf("expected exit code 0, got %d, stderr: %s", exitCode, stderr)
 	}

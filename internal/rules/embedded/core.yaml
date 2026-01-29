@@ -5,7 +5,7 @@
   severity: High
 - id: core-002
   description: Posible text plain password in dockerfile
-  regex: '(password|secret|RUN|CMD|ENTRYPOINT|ARG|ENV|LABEL)'
+  regex: '((ENV|ARG|LABEL)[\s]+.*(password|secret|passwd|token|key))'
   reference: https://snyk.io/blog/10-docker-image-security-best-practices/
   severity: High
 - id: core-003

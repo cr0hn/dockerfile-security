@@ -36,10 +36,11 @@ func TestAnalyzeDockerfileExample(t *testing.T) {
 		foundIDs[issue.ID] = true
 	}
 
-	// Dockerfile-example has: COPY . . (core-003), password in text (core-002),
-	// FROM python:3.7-alpine (not sha256, core-005), no USER (core-001 should NOT match),
-	// cred-001 (generic credential: password)
-	expectedIDs := []string{"core-002", "core-003", "core-005"}
+	// Dockerfile-example has: COPY . . (core-003),
+	// FROM python:3.7-alpine (not sha256, core-005),
+	// cred-001 (generic credential: password in --password flag)
+	// Note: core-002 now only detects ENV/ARG/LABEL with credentials, not RUN commands
+	expectedIDs := []string{"core-003", "core-005", "cred-001"}
 	for _, id := range expectedIDs {
 		if !foundIDs[id] {
 			t.Errorf("expected rule %s to match, but it didn't. Found: %v", id, foundIDs)
