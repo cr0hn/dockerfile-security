@@ -118,3 +118,78 @@ func TestAnalyzeCustomRule(t *testing.T) {
 		t.Errorf("expected custom-001, got %s", issues[0].ID)
 	}
 }
+
+func TestAnalyzeSecurityIssues(t *testing.T) {
+	content := loadTestDockerfile(t, "Dockerfile-security-issues")
+	securityRules, err := rules.LoadInternal("security")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	issues := Analyze(content, securityRules, nil)
+	if len(issues) == 0 {
+		t.Error("expected security issues, got none")
+	}
+
+	foundIDs := make(map[string]bool)
+	for _, issue := range issues {
+		foundIDs[issue.ID] = true
+	}
+
+	expectedIDs := []string{"sec-001", "sec-002", "sec-003", "sec-004", "sec-006", "sec-007"}
+	for _, id := range expectedIDs {
+		if !foundIDs[id] {
+			t.Errorf("expected security rule %s to match", id)
+		}
+	}
+}
+
+func TestAnalyzePackageIssues(t *testing.T) {
+	content := loadTestDockerfile(t, "Dockerfile-package-issues")
+	packageRules, err := rules.LoadInternal("packages")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	issues := Analyze(content, packageRules, nil)
+	if len(issues) == 0 {
+		t.Error("expected package issues, got none")
+	}
+
+	foundIDs := make(map[string]bool)
+	for _, issue := range issues {
+		foundIDs[issue.ID] = true
+	}
+
+	expectedIDs := []string{"pkg-001", "pkg-002", "pkg-003", "pkg-004"}
+	for _, id := range expectedIDs {
+		if !foundIDs[id] {
+			t.Errorf("expected package rule %s to match", id)
+		}
+	}
+}
+
+func TestAnalyzeConfigIssues(t *testing.T) {
+	content := loadTestDockerfile(t, "Dockerfile-config-issues")
+	configRules, err := rules.LoadInternal("configuration")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	issues := Analyze(content, configRules, nil)
+	if len(issues) == 0 {
+		t.Error("expected configuration issues, got none")
+	}
+
+	foundIDs := make(map[string]bool)
+	for _, issue := range issues {
+		foundIDs[issue.ID] = true
+	}
+
+	expectedIDs := []string{"cfg-001", "cfg-002", "cfg-003"}
+	for _, id := range expectedIDs {
+		if !foundIDs[id] {
+			t.Errorf("expected configuration rule %s to match", id)
+		}
+	}
+}

@@ -1,0 +1,23 @@
+FROM ubuntu:20.04
+
+# sec-001: Docker socket mount
+RUN docker run -v /var/run/docker.sock:/var/run/docker.sock alpine
+
+# sec-002: WORKDIR insecure
+WORKDIR /root
+
+# sec-003: chmod 777
+RUN chmod 777 /app/data
+
+# sec-004: sudo in RUN
+RUN sudo apt-get update
+
+# sec-005: BuildKit secret without cleanup
+RUN --mount=type=secret,id=mysecret cat /run/secrets/mysecret
+
+# sec-006: SUID/SGID bits
+RUN chmod u+s /usr/bin/myapp
+
+# sec-007: ENV with credentials
+ENV PASSWORD=mysecretpassword
+ENV API_KEY=sk-1234567890abcdef

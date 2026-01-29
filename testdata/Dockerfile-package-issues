@@ -1,0 +1,13 @@
+FROM ubuntu:20.04
+
+# pkg-001: apt-get without cleanup
+RUN apt-get update && apt-get install -y curl
+
+# pkg-002: pip without --no-cache-dir
+RUN pip install requests
+
+# pkg-003: npm without cache clean
+RUN npm install express
+
+# pkg-004: curl | bash
+RUN curl https://example.com/install.sh | bash

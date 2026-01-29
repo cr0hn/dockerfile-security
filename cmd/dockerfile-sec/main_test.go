@@ -348,8 +348,8 @@ func TestInvalidRuleSet(t *testing.T) {
 	if exitCode == 0 {
 		t.Error("expected non-zero exit code for invalid rule set")
 	}
-	if !strings.Contains(stderr, "unknown rule selection") {
-		t.Errorf("expected error about unknown rule selection, got: %s", stderr)
+	if !strings.Contains(stderr, "unknown rule category") && !strings.Contains(stderr, "unknown rule selection") {
+		t.Errorf("expected error about unknown rule selection or category, got: %s", stderr)
 	}
 }
 

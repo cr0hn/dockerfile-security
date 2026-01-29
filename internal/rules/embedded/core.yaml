@@ -2,10 +2,10 @@
   description: Missing USER sentence in dockerfile. It is recommended to use a non-root user
   regex: '^^(USER[\s]+[\w\d_]+)$'
   reference: https://snyk.io/blog/10-docker-image-security-best-practices/
-  severity: Medium
+  severity: High
 - id: core-002
   description: Posible text plain password in dockerfile
-  regex: '(password|secret)'
+  regex: '(password|secret|RUN|CMD|ENTRYPOINT|ARG|ENV|LABEL)'
   reference: https://snyk.io/blog/10-docker-image-security-best-practices/
   severity: High
 - id: core-003
@@ -20,7 +20,7 @@
   severity: Low
 - id: core-005
   description: Use image tag instead of SHA256 hash
-  regex: '^(?!(FROM[\s]+[\w\d_]+@sha256:[\d\w]{64}))'
+  regex: '^(FROM[\s]+[\w\d_/:.-]+(?!@sha256:))'
   reference: https://medium.com/@tariq.m.islam/container-deployments-a-lesson-in-deterministic-ops-a4a467b14a03
   severity: Medium
 - id: core-006
@@ -28,7 +28,7 @@
   # Regex for:
   # FROM python@sha256:65cb2034c64b4519f1481c552a30ae3fe19f47f3610513b0387dc2e1570080fa:latest
   # FROM python:latest
-  regex: '^(FROM[\s]+[\w\W]+\:latest)'
+  regex: '^(FROM[\s]+[\w\d_/:.-]+:latest)'
   reference: https://snyk.io/blog/10-docker-image-security-best-practices/
   severity: Medium
 - id: core-007
@@ -40,10 +40,11 @@
   description: Use of --insecurity=insecure option in RUN sentence
   regex: '(RUN[\s]+.*[\s]+--insecurity=insecure)'
   reference: https://docs.docker.com/reference/dockerfile/#run---security
+  severity: High
 
 - id: core-009
   description: Use 'ARG' it isn't recommended to use build arguments for passing secrets such as user credentials. Use 'ENV' instead.
-  regex: '(ARG[\s]+(password|token|secret|key|aws_secret|aws_key|pass|aws_access_key_id|aws_secret_access_key|aws_session_token))'
+  regex: '(ARG[\s]+(password|token|secret|key|api_key|apikey|aws_secret|aws_key|pass|credential|auth|aws_access_key_id|aws_secret_access_key|aws_session_token))'
   reference: https://docs.docker.com/reference/dockerfile/#arg
   severity: High
 

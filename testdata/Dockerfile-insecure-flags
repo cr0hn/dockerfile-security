@@ -1,0 +1,4 @@
+FROM ubuntu:latest
+RUN apt-get update --insecurity=insecure
+RUN apt-get install -y curl --insecurity=insecure
+CMD ["./start.sh"]

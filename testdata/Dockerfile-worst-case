@@ -1,0 +1,13 @@
+FROM ubuntu:latest
+MAINTAINER Insecure Dev <insecure@example.com>
+ENV AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE
+ENV AWS_MWS_KEY="amzn.mws.12345678-1234-1234-1234-123456789abc"
+ENV GOOGLE_API_KEY="AIzaSyDaGmWKa4JsXZ_HjGw7ISLn_3namBGewQe"
+ENV SLACK_WEBHOOK="https://hooks.slack.com/services/T12345678/B12345678/1a2b3c4d5e6f7g8h9i0j1k2l3m4n"
+ARG password=root123
+COPY . .
+ADD archive.tar.gz /app/
+RUN echo "-----BEGIN EC PRIVATE KEY-----\nMHcCAQEE..." > /root/.ssh/ec-key.pem
+RUN apt-get update --insecurity=insecure
+HEALTHCHECK CMD curl -f http://localhost/health -H "Authorization: Bearer admin_token" || exit 1
+CMD ["python3", "app.py"]

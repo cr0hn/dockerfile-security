@@ -1,0 +1,12 @@
+FROM node:18-alpine AS builder
+ARG token=npm_secret_token_here
+WORKDIR /build
+COPY . .
+RUN npm run build
+
+FROM python:3.11-slim
+MAINTAINER DevOps Team <devops@company.com>
+ADD --from=builder /build/dist /app/dist
+ENV DB_PASSWORD=database_secret_pass
+HEALTHCHECK CMD curl -f http://localhost:5000/health -H "Authorization: Token health_check_token" || exit 1
+CMD ["python", "main.py"]

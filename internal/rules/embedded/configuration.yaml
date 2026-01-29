@@ -1,0 +1,15 @@
+- id: cfg-001
+  description: Using --privileged flag (full host access granted)
+  regex: '(--privileged)'
+  reference: https://docs.docker.com/engine/reference/run/#runtime-privilege-and-linux-capabilities
+  severity: Critical
+- id: cfg-002
+  description: Exposing dangerous ports (22-SSH, 23-Telnet, 3389-RDP, 5432-PostgreSQL, 3306-MySQL)
+  regex: '(EXPOSE[\s]+(22|23|3389|5432|3306)[\s]*$)'
+  reference: https://docs.docker.com/engine/security/security/#docker-daemon-attack-surface
+  severity: Medium
+- id: cfg-003
+  description: Non-standard STOPSIGNAL defined (may cause unexpected behavior)
+  regex: '(STOPSIGNAL[\s]+(?!SIGTERM))'
+  reference: https://docs.docker.com/reference/dockerfile/#stopsignal
+  severity: Low

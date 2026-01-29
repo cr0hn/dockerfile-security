@@ -1,0 +1,11 @@
+FROM ubuntu:20.04
+
+# cfg-001: --privileged flag
+RUN docker run --privileged alpine
+
+# cfg-002: Dangerous ports
+EXPOSE 22
+EXPOSE 3306
+
+# cfg-003: Non-standard STOPSIGNAL
+STOPSIGNAL SIGKILL

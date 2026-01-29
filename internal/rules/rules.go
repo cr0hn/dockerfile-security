@@ -39,28 +39,77 @@ func IssueFromRule(r Rule) Issue {
 }
 
 // LoadInternal loads built-in rules based on the selection flag.
-// Valid selections: "all" (default), "core", "credentials", "none".
+// Valid selections: "all" (default), "core", "credentials", "security", "packages", "configuration", "none", or comma-separated combinations.
 func LoadInternal(selection string) ([]Rule, error) {
-	switch strings.ToLower(selection) {
-	case "none":
+	selection = strings.ToLower(selection)
+
+	// Handle special cases
+	if selection == "none" {
 		return nil, nil
+	}
+
+	if selection == "all" || selection == "" {
+		return loadAllCategories()
+	}
+
+	// Handle comma-separated categories
+	if strings.Contains(selection, ",") {
+		categories := strings.Split(selection, ",")
+		var allRules []Rule
+		for _, cat := range categories {
+			cat = strings.TrimSpace(cat)
+			rules, err := loadCategory(cat)
+			if err != nil {
+				return nil, err
+			}
+			allRules = append(allRules, rules...)
+		}
+		return allRules, nil
+	}
+
+	// Single category
+	return loadCategory(selection)
+}
+
+// loadCategory loads a single category of rules.
+func loadCategory(category string) ([]Rule, error) {
+	switch category {
 	case "core":
 		return parseYAML(embedded.CoreYAML)
 	case "credentials":
 		return parseYAML(embedded.CredentialsYAML)
-	case "all", "":
-		core, err := parseYAML(embedded.CoreYAML)
-		if err != nil {
-			return nil, err
-		}
-		creds, err := parseYAML(embedded.CredentialsYAML)
-		if err != nil {
-			return nil, err
-		}
-		return append(core, creds...), nil
+	case "security":
+		return parseYAML(embedded.SecurityYAML)
+	case "packages":
+		return parseYAML(embedded.PackagesYAML)
+	case "configuration":
+		return parseYAML(embedded.ConfigurationYAML)
 	default:
-		return nil, fmt.Errorf("unknown rule selection: %s", selection)
+		return nil, fmt.Errorf("unknown rule category: %s", category)
 	}
+}
+
+// loadAllCategories loads all built-in rule categories.
+func loadAllCategories() ([]Rule, error) {
+	var allRules []Rule
+
+	categories := [][]byte{
+		embedded.CoreYAML,
+		embedded.CredentialsYAML,
+		embedded.SecurityYAML,
+		embedded.PackagesYAML,
+		embedded.ConfigurationYAML,
+	}
+
+	for _, data := range categories {
+		rules, err := parseYAML(data)
+		if err != nil {
+			return nil, err
+		}
+		allRules = append(allRules, rules...)
+	}
+
+	return allRules, nil
 }
 
 // LoadExternal loads rules from a file path or URL.

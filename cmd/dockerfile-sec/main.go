@@ -43,7 +43,7 @@ func run() error {
 	flag.Var(&ignoreFiles, "F", "ignore file (repeatable)")
 	flag.Var(&ignoreRules, "i", "ignore rule IDs, comma-separated (repeatable)")
 	flag.Var(&rulesFiles, "r", "external rules file or URL (repeatable)")
-	flag.StringVar(&internalRules, "R", "all", "built-in rules: core, credentials, all, none")
+	flag.StringVar(&internalRules, "R", "all", "built-in rules: core, credentials, security, packages, configuration, all, none (comma-separated)")
 	flag.StringVar(&outputFile, "o", "", "output file path (JSON)")
 	flag.BoolVar(&quiet, "q", false, "quiet mode")
 	flag.BoolVar(&codeExit, "E", false, "exit code 1 if issues found")

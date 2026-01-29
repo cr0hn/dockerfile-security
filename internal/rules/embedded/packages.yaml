@@ -1,0 +1,20 @@
+- id: pkg-001
+  description: apt-get without cleanup (rm -rf /var/lib/apt/lists/*)
+  regex: '(apt-get[\s]+install(?!.*rm[\s]+-rf[\s]+/var/lib/apt/lists))'
+  reference: https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#run
+  severity: Medium
+- id: pkg-002
+  description: pip install without --no-cache-dir flag (increases image size)
+  regex: '(pip[\s]+install(?!.*--no-cache-dir))'
+  reference: https://pythonspeed.com/articles/docker-cache-pip-downloads/
+  severity: Low
+- id: pkg-003
+  description: npm install without clearing npm cache
+  regex: '(npm[\s]+install(?!.*npm[\s]+cache[\s]+clean))'
+  reference: https://docs.npmjs.com/cli/v8/commands/npm-cache
+  severity: Low
+- id: pkg-004
+  description: Piping curl/wget to bash (arbitrary code execution risk)
+  regex: '(curl.*\|[\s]*(bash|sh)|wget.*\|[\s]*(bash|sh))'
+  reference: https://www.seancassidy.me/dont-pipe-to-your-shell.html
+  severity: High

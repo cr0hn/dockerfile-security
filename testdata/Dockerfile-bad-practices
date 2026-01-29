@@ -1,0 +1,6 @@
+FROM centos:7
+MAINTAINER John Doe <john.doe@example.com>
+ADD application.tar.gz /opt/app/
+ADD config.json /etc/app/
+RUN yum install -y httpd
+CMD ["/usr/sbin/httpd", "-D", "FOREGROUND"]

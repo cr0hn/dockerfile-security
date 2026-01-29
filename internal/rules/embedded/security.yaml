@@ -1,0 +1,35 @@
+- id: sec-001
+  description: Docker socket mounted in container (allows container escape)
+  regex: '(-v[\s]+/var/run/docker\.sock|--mount.*docker\.sock)'
+  reference: https://raesene.github.io/blog/2016/03/06/The-Dangers-Of-Docker.sock/
+  severity: Critical
+- id: sec-002
+  description: WORKDIR pointing to system directories or root
+  regex: '^(WORKDIR[\s]+(/|/root|/bin|/sbin|/usr|/etc|/sys|/proc)[\s]*$)'
+  reference: https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#workdir
+  severity: Medium
+- id: sec-003
+  description: chmod 777 or dangerous permissions found
+  regex: '(chmod[\s]+(-R[\s]+)?777|chmod[\s]+(-R[\s]+)?0777)'
+  reference: https://docs.docker.com/engine/security/security/#docker-daemon-attack-surface
+  severity: High
+- id: sec-004
+  description: Use of sudo in RUN commands (avoid running as root)
+  regex: '(RUN[\s]+.*[\s]+sudo[\s]+)'
+  reference: https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#user
+  severity: Medium
+- id: sec-005
+  description: BuildKit secret mount without proper cleanup
+  regex: '(--mount=type=secret.*RUN(?!.*rm[\s]+))'
+  reference: https://docs.docker.com/build/building/secrets/
+  severity: High
+- id: sec-006
+  description: Setting SUID or SGID bits on binaries (privilege escalation risk)
+  regex: '(chmod[\s]+(u\+s|g\+s|4755|2755|6755))'
+  reference: https://www.oreilly.com/library/view/docker-security/9781800565937/
+  severity: High
+- id: sec-007
+  description: ENV directive with embedded credentials or secrets
+  regex: '(ENV[\s]+.*(PASSWORD|SECRET|TOKEN|KEY|API_KEY|APIKEY)[\s]*=)'
+  reference: https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#env
+  severity: High
