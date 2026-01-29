@@ -17,10 +17,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Comprehensive test suite covering all platforms and features
   - Examples for basic usage, advanced workflows, PR comments, and multiple Dockerfile scanning
 
-## [2.0.0] - 2025-01-29
-
-### Added
-
 - **19 New Security Rules** - Expanded from 16 to 35 built-in rules
 - **New Rule Categories**:
   - `security` (7 rules) - Advanced security checks including Docker socket mounts, dangerous permissions, SUID/SGID bits
